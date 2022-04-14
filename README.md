@@ -30,7 +30,7 @@ version: '3'
 
 services:
   runner:
-    image: knatnetwork/github-runner:bionic-2.290.0
+    image: knatnetwork/github-runner:focal-2.290.0
     restart: always
     environment:
       RUNNER_REGISTER_TO: 'knatnetwork'
@@ -52,7 +52,7 @@ Then create a `config.json` and write down Org-PAT pair, example as below:
 
 ```json
 {
-	"cloudflare": "ghp_bFLPOxxxxxxxxxxxxxxxxxxxxxxx",
+	"knatnetwork": "ghp_bFLPOxxxxxxxxxxxxxxxxxxxxxxx",
 	"rust-lang": "ghp_JGIGxxxxxxxxxxxxxxxxxxxOij4"
 }
 ```

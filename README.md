@@ -35,7 +35,7 @@ services:
     environment:
       RUNNER_REGISTER_TO: 'knatnetwork'
       RUNNER_LABELS: 'docker,knat'
-      KMS_SERVER_ADDR: 'http://kms:3000/'
+      KMS_SERVER_ADDR: 'http://kms:3000'
       GOPROXY: 'http://goproxy.knat.network,https://proxy.golang.org,direct'
       ADDITIONAL_FLAGS: '--ephemeral'
     volumes:
@@ -58,6 +58,8 @@ Then create a `config.json` and write down Org-PAT pair, example as below:
 ```
 
 After that you can use `docker-compose up -d` to start the runner, and now the runner should be registered on `knatnetwork` Org now.
+
+![](./demo.png)
 
 Notes:
 

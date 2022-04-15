@@ -72,3 +72,7 @@ Notes:
 ## Further Reading
 
 For more instructions, please take a look at the [documentation](https://runner.knat.network).
+
+## License
+
+GPL

@@ -6,8 +6,10 @@ No Operator, No CRD, No need to blindly apply a `yml` to K8s cluster, only a sim
 
 This repo provides the following images, both are Multi-Arch(amd64/arm64 supported):
 
-* `knatnetwork/github-runner:focal-2.290.0`
-* `ghcr.io/knatnetwork/github-runner:focal-2.290.0`
+* `knatnetwork/github-runner:focal-<tag>`
+* `ghcr.io/knatnetwork/github-runner:focal-<tag>`
+
+`<tag>` is related to the https://github.com/actions/runner/tags, for example, you may expect a image called `knatnetwork/github-runner:focal-2.290.1` when `v.2.290.1` is released.
 
 ## Specs
 

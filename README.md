@@ -9,7 +9,7 @@ This repo provides the following images, both are Multi-Arch(amd64/arm64 support
 * `knatnetwork/github-runner:focal-<tag>`
 * `ghcr.io/knatnetwork/github-runner:focal-<tag>`
 
-`<tag>` is related to the https://github.com/actions/runner/tags, for example, you may expect a image called `knatnetwork/github-runner:focal-2.290.1` when `v.2.290.1` is released.
+`<tag>` is related to the https://github.com/actions/runner/tags, for example, you may expect a image called `knatnetwork/github-runner:focal-2.290.1` when `v2.290.1` is released.
 
 ## Specs
 
@@ -23,7 +23,7 @@ This repo provides the following images, both are Multi-Arch(amd64/arm64 support
 
 ### Docker compose Quick Start
 
-This is a quick start template for people to register a runner on single machine using Docker Compose.
+This is a quick start example for people to register a runner on single machine using Docker Compose.
 
 First you need to create a `docker-compose.yml` file and write the following content.
 

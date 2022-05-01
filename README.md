@@ -32,7 +32,7 @@ version: '3'
 
 services:
   runner:
-    image: knatnetwork/github-runner:focal-2.290.0
+    image: knatnetwork/github-runner:focal-2.291.1
     restart: always
     environment:
       RUNNER_REGISTER_TO: 'knatnetwork'
@@ -46,17 +46,9 @@ services:
   kms:
     image: knatnetwork/github-runner-kms:latest
     restart: always
-    volumes:
-      - ./config.json:/usr/src/app/config.json
-```
-
-Then create a `config.json` and write down Org-PAT pair, example as below:
-
-```json
-{
-	"knatnetwork": "ghp_bFLPOxxxxxxxxxxxxxxxxxxxxxxx",
-	"rust-lang": "ghp_JGIGxxxxxxxxxxxxxxxxxxxOij4"
-}
+    environment:
+      PAT_knatnetwork: 'ghp_Lxxxxxxxxxx2NUk5F'
+      PAT_rust-lang: 'ghp_Lxxxxxxxxxx2NUk5F'
 ```
 
 After that you can use `docker-compose up -d` to start the runner, and now the runner should be registered on `knatnetwork` Org now.

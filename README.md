@@ -51,6 +51,8 @@ services:
       PAT_rust-lang: 'ghp_Lxxxxxxxxxx2NUk5F'
 ```
 
+(If your org's name is `org_name`, then `environment` should be `PAT_org_name: 'ghp_Lxxxxxxxxxx2NUk5F'`)
+
 After that you can use `docker-compose up -d` to start the runner, and now the runner should be registered on `knatnetwork` Org now.
 
 ![](./demo.png)

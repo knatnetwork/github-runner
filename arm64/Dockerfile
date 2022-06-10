@@ -34,6 +34,9 @@ RUN apt-get update \
     && mv docker/* /usr/bin/ \
     && rm -f docker-20.10.14.tgz 
 
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - \
+    && sudo apt-get install -y nodejs
+
 USER root
 WORKDIR /root/
 

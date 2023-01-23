@@ -49,6 +49,7 @@ jobs:
           platforms: linux/arm64
           push: true
           provenance: false
+          sbom: false
           build-args: GITHUB_RUNNER_VERSION=${{ github.event.inputs.github-runner-version }}
           tags: |
             ghcr.io/knatnetwork/github-runner-arm64:focal-${{ github.event.inputs.github-runner-version }}
@@ -102,6 +103,7 @@ jobs:
           platforms: linux/amd64
           push: true
           provenance: false
+          sbom: false
           build-args: GITHUB_RUNNER_VERSION=${{ github.event.inputs.github-runner-version }}
           tags: |
             ghcr.io/knatnetwork/github-runner-amd64:focal-${{ github.event.inputs.github-runner-version }}

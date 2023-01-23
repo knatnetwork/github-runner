@@ -10,7 +10,7 @@ RUN wget https://github.com/actions/runner/releases/download/v${GITHUB_RUNNER_VE
     && sed -i '3,9d' ./config.sh \
     && sed -i '3,8d' ./run.sh
 
-FROM ubuntu:20.04
+FROM ubuntu:20.04 as runner
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV KMS_SERVER_ADDR ""
@@ -29,12 +29,12 @@ RUN apt-get update \
     && cd && rm -rf git-2.28.0.tar.gz git-2.28.0 \
     && wget https://github.com/Kitware/CMake/releases/download/v3.21.3/cmake-3.21.3.tar.gz \
     && tar xf cmake-3.21.3.tar.gz && cd cmake-3.21.3 && ./configure && make -j 8 && make install \
-    && curl https://download.docker.com/linux/static/stable/aarch64/docker-20.10.14.tgz --output docker-20.10.14.tgz \
-    && tar xvfz docker-20.10.14.tgz \
+    && curl https://download.docker.com/linux/static/stable/aarch64/docker-20.10.23.tgz --output docker-20.10.23.tgz \
+    && tar xvfz docker-20.10.23.tgz \
     && mv docker/* /usr/bin/ \
-    && rm -f docker-20.10.14.tgz 
+    && rm -f docker-20.10.23.tgz 
 
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - \
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - \
     && sudo apt-get install -y nodejs
 
 USER root

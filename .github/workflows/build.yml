@@ -41,7 +41,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-arm64
 
-      - name: Build and push ARM64 Version
+      - name: Build and push ${{ github.event.inputs.github-runner-version }} ARM64 Version
         uses: docker/build-push-action@v3
         with:
           context: ./arm64/
@@ -94,7 +94,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-amd64
 
-      - name: Build and push AMD64 Version
+      - name: Build and push ${{ github.event.inputs.github-runner-version }} AMD64 Version
         uses: docker/build-push-action@v3
         with:
           context: ./amd64/

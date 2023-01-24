@@ -52,8 +52,7 @@ jobs:
           sbom: false
           build-args: GITHUB_RUNNER_VERSION=${{ github.event.inputs.github-runner-version }}
           tags: |
-            ghcr.io/knatnetwork/github-runner-arm64:focal-${{ github.event.inputs.github-runner-version }}
-            knatnetwork/github-runner-arm64:focal-${{ github.event.inputs.github-runner-version }}
+            ghcr.io/knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }}-arm64
 
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
@@ -106,8 +105,7 @@ jobs:
           sbom: false
           build-args: GITHUB_RUNNER_VERSION=${{ github.event.inputs.github-runner-version }}
           tags: |
-            ghcr.io/knatnetwork/github-runner-amd64:focal-${{ github.event.inputs.github-runner-version }}
-            knatnetwork/github-runner-amd64:focal-${{ github.event.inputs.github-runner-version }}
+            ghcr.io/knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }}-amd64
             
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
@@ -135,11 +133,15 @@ jobs:
         with:
           username: knatnetwork
           password: ${{ secrets.DOCKERHUB_PASSWD }}
-      
-      - name: Combine two images
-        run: |
-          docker manifest create knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }} --amend knatnetwork/github-runner-amd64:focal-${{ github.event.inputs.github-runner-version }} --amend knatnetwork/github-runner-arm64:focal-${{ github.event.inputs.github-runner-version }}
-          docker manifest create ghcr.io/knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }} --amend ghcr.io/knatnetwork/github-runner-amd64:focal-${{ github.event.inputs.github-runner-version }} --amend ghcr.io/knatnetwork/github-runner-arm64:focal-${{ github.event.inputs.github-runner-version }}
 
-          docker manifest push knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }}
+      - name: Get regctl
+        run: |
+          wget -q https://github.com/regclient/regclient/releases/download/v0.4.5/regctl-linux-amd64
+          chmod +x regctl-linux-amd64
+
+      - name: Combine two images on GHCR and sync to DockerHub
+        run: |
+          docker manifest create ghcr.io/knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }} --amend ghcr.io/knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }}-amd64 --amend ghcr.io/knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }}-arm64
           docker manifest push ghcr.io/knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }}
+
+          ./regctl-linux-amd64 image copy ghcr.io/knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }} knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }} -v

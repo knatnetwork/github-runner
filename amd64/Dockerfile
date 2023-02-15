@@ -26,11 +26,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.28.0.tar.gz && tar -xvzf git-2.28.0.tar.gz && cd git-2.28.0 && ./configure --prefix=/usr/ && make -j 8 && make install \
-    && cd && rm -rf git-2.28.0.tar.gz git-2.28.0 \
-    && curl https://download.docker.com/linux/static/stable/x86_64/docker-20.10.23.tgz --output docker-20.10.23.tgz \
-    && tar xvfz docker-20.10.23.tgz \
-    && mv docker/* /usr/bin/ \
-    && rm -f docker-20.10.23.tgz 
+    && cd && rm -rf git-2.28.0.tar.gz git-2.28.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - \
     && sudo apt-get install -y nodejs

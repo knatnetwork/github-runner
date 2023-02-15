@@ -28,11 +28,7 @@ RUN apt-get update \
     && wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.28.0.tar.gz && tar -xvzf git-2.28.0.tar.gz && cd git-2.28.0 && ./configure --prefix=/usr/ && make -j 8 && make install \
     && cd && rm -rf git-2.28.0.tar.gz git-2.28.0 \
     && wget https://github.com/Kitware/CMake/releases/download/v3.21.3/cmake-3.21.3.tar.gz \
-    && tar xf cmake-3.21.3.tar.gz && cd cmake-3.21.3 && ./configure && make -j 8 && make install \
-    && curl https://download.docker.com/linux/static/stable/aarch64/docker-20.10.23.tgz --output docker-20.10.23.tgz \
-    && tar xvfz docker-20.10.23.tgz \
-    && mv docker/* /usr/bin/ \
-    && rm -f docker-20.10.23.tgz 
+    && tar xf cmake-3.21.3.tar.gz && cd cmake-3.21.3 && ./configure && make -j 8 && make install
 
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - \
     && sudo apt-get install -y nodejs

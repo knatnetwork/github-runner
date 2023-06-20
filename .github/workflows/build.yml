@@ -145,3 +145,7 @@ jobs:
           docker manifest push ghcr.io/knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }}
 
           ./regctl-linux-amd64 image copy ghcr.io/knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }} knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }} -v info
+          
+      - name: Update image latest tag
+        run: |
+          ./regctl-linux-amd64 image copy ghcr.io/knatnetwork/github-runner:focal-${{ github.event.inputs.github-runner-version }} knatnetwork/github-runner:latest -v info

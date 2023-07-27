@@ -25,8 +25,8 @@ RUN apt-get update \
     && apt-get install -y curl sudo jq iputils-ping zip libssl-dev libcurl4-gnutls-dev zlib1g-dev gettext make build-essential python3-pip wget cmake clang perl psmisc software-properties-common \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.28.0.tar.gz && tar -xvzf git-2.28.0.tar.gz && cd git-2.28.0 && ./configure --prefix=/usr/ && make -j 8 && make install \
-    && cd && rm -rf git-2.28.0.tar.gz git-2.28.0
+    && wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.40.1.tar.gz && tar -xvzf git-2.40.1.tar.gz && cd git-2.40.1 && ./configure --prefix=/usr/ && make -j 8 && make install \
+    && cd && rm -rf git-2.40.1.tar.gz git-2.40.1
 
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - \
     && sudo apt-get install -y nodejs

@@ -25,10 +25,10 @@ RUN apt-get update \
     && apt-get install -y curl sudo jq iputils-ping zip gcc libssl-dev libcurl4-gnutls-dev zlib1g-dev make gettext wget docker-compose cmake clang perl psmisc software-properties-common \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.28.0.tar.gz && tar -xvzf git-2.28.0.tar.gz && cd git-2.28.0 && ./configure --prefix=/usr/ && make -j 8 && make install \
-    && cd && rm -rf git-2.28.0.tar.gz git-2.28.0 \
-    && wget https://github.com/Kitware/CMake/releases/download/v3.21.3/cmake-3.21.3.tar.gz \
-    && tar xf cmake-3.21.3.tar.gz && cd cmake-3.21.3 && ./configure && make -j 8 && make install
+    && wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.40.1.tar.gz && tar -xvzf git-2.40.1.tar.gz && cd git-2.40.1 && ./configure --prefix=/usr/ && make -j 8 && make install \
+    && cd && rm -rf git-2.40.1.tar.gz git-2.40.1 \
+    && wget https://github.com/Kitware/CMake/releases/download/v3.27.1/cmake-3.27.1.tar.gz \
+    && tar xf cmake-3.27.1.tar.gz && cd cmake-3.27.1 && ./configure && make -j 8 && make install
 
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - \
     && sudo apt-get install -y nodejs

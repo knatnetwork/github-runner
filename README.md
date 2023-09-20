@@ -8,12 +8,16 @@ This repo provides the following images, both are Multi-Arch(amd64/arm64 support
 
 - `knatnetwork/github-runner:focal-<tag>`
 - `ghcr.io/knatnetwork/github-runner:focal-<tag>`
+- `knatnetwork/github-runner:jammy-<tag>`
+- `ghcr.io/knatnetwork/github-runner:jammy-<tag>`
 
-`<tag>` is related to the https://github.com/actions/runner/tags, for example, you may expect a image called `knatnetwork/github-runner:focal-2.290.1` when `v2.290.1` is released.
+`<tag>` is related to the https://github.com/actions/runner/tags, for example, you may expect a image called `knatnetwork/github-runner:jammy-2.309.0` when `v2.309.0` is released.
 
 ## Specs
 
-- Images are based on Ubuntu 20.04
+- `github-runner:focal-<tag>` images are based on Ubuntu 20.04
+- `github-runner:jammy-<tag>` images are based on Ubuntu 22.04
+- `github-runner:latest` images are latest image of `github-runner:jammy-<tag>`
 
 ## Usage
 
@@ -32,7 +36,7 @@ version: '3'
 
 services:
   runner:
-    image: knatnetwork/github-runner:focal-2.291.1
+    image: knatnetwork/github-runner:latest
     restart: always
     environment:
       RUNNER_REGISTER_TO: 'knatnetwork'

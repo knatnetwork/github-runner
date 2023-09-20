@@ -21,10 +21,10 @@ fi
 remove() {
 if [[ "${RUNNER_REGISTER_TO}" == *\/* ]]; then
     # Contain "/", to Repo
-    ./config.sh --unattended remove --token $(curl ${KMS_SERVER_ADDR}/repo/${RUNNER_REGISTER_TO}/remove-token)
+    ./config.sh remove --token $(curl ${KMS_SERVER_ADDR}/repo/${RUNNER_REGISTER_TO}/remove-token)
 else
     # Not contain "/", to Org
-    ./config.sh --unattended remove --token $(curl ${KMS_SERVER_ADDR}/${RUNNER_REGISTER_TO}/remove-token)
+    ./config.sh remove --token $(curl ${KMS_SERVER_ADDR}/${RUNNER_REGISTER_TO}/remove-token)
 fi
 }
 

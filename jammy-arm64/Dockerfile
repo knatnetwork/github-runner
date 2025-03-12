@@ -22,7 +22,10 @@ ENV ADDITIONAL_FLAGS ""
 ENV GOPROXY ""
 
 RUN apt-get update \
-    && apt-get install -y git curl sudo jq iputils-ping zip gcc libssl-dev libcurl4-gnutls-dev zlib1g-dev make gettext wget docker-compose cmake clang perl psmisc software-properties-common \
+    && apt-get install -y curl sudo jq iputils-ping zip libssl-dev libcurl4-gnutls-dev zlib1g-dev gettext make build-essential python3-pip wget cmake clang perl psmisc software-properties-common
+
+# Install Docker binary
+RUN curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

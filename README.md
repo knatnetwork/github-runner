@@ -10,14 +10,18 @@ This repo provides the following images, both are Multi-Arch(amd64/arm64 support
 - `ghcr.io/knatnetwork/github-runner:focal-<tag>`
 - `knatnetwork/github-runner:jammy-<tag>`
 - `ghcr.io/knatnetwork/github-runner:jammy-<tag>`
+- `knatnetwork/github-runner:noble-<tag>`
+- `ghcr.io/knatnetwork/github-runner:noble-<tag>`
 
-`<tag>` is related to the https://github.com/actions/runner/tags, for example, you may expect a image called `knatnetwork/github-runner:jammy-2.309.0` when `v2.309.0` is released.
+
+`<tag>` is related to the https://github.com/actions/runner/tags, for example, you may expect a image called `knatnetwork/github-runner:jammy-2.322.0` when `v2.322.0` is released.
 
 ## Specs
 
 - `github-runner:focal-<tag>` images are based on Ubuntu 20.04
 - `github-runner:jammy-<tag>` images are based on Ubuntu 22.04
-- `github-runner:latest` images are latest image of `github-runner:jammy-<tag>`
+- `github-runner:noble-<tag>` images are based on Ubuntu 24.04
+- `github-runner:latest` images are latest image of `github-runner:noble-<tag>`
 
 ## Usage
 
@@ -67,7 +71,7 @@ Notes:
 
 - If you want to run runner without docker support inside it, just delete the `volumes`
 - If you don't want ephemeral runner(ref: [GitHub Actions: Ephemeral self-hosted runners & new webhooks for auto-scaling](https://github.blog/changelog/2021-09-20-github-actions-ephemeral-self-hosted-runners-new-webhooks-for-auto-scaling/), just remove `ADDITIONAL_FLAGS: '--ephemeral'` line.)
-- If you want to register runner to a repo only, you can just change value of `RUNNER_REGISTER_TO` to `<org_name>/<repo_name>`
+- If you want to register runner to a repo only, you can just change value of `RUNNER_REGISTER_TO` to `<org_name>/<repo_name>`, and use `PAT_<org_name>` as `environment` in `kms` container.
 
 ## Further Reading
 

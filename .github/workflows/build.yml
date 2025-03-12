@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       github-runner-version:
-        description: 'Version on github runner(in https://github.com/actions/runner), e.g: 2.309.0'
+        description: 'Version on github runner(in https://github.com/actions/runner), e.g: 2.322.0'
         required: true
-        default: '2.309.0'
+        default: '2.322.0'
 
 jobs:
   build-images:
@@ -15,7 +15,7 @@ jobs:
       fail-fast: true
       matrix:
         platform: [amd64, arm64]
-        code_name: [focal, jammy]
+        code_name: [focal, jammy, noble]
 
     steps:
       - uses: actions/checkout@v4
@@ -98,11 +98,14 @@ jobs:
           docker manifest push ghcr.io/${{ github.repository }}:focal-${{ github.event.inputs.github-runner-version }}
           docker manifest create ghcr.io/${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }} --amend ghcr.io/${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }}-amd64 --amend ghcr.io/${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }}-arm64
           docker manifest push ghcr.io/${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }}
+          docker manifest create ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }} --amend ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }}-amd64 --amend ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }}-arm64
+          docker manifest push ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }}
 
           ./regctl-linux-amd64 image copy ghcr.io/${{ github.repository }}:focal-${{ github.event.inputs.github-runner-version }} ${{ github.repository }}:focal-${{ github.event.inputs.github-runner-version }} -v info
           ./regctl-linux-amd64 image copy ghcr.io/${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }} ${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }} -v info
+          ./regctl-linux-amd64 image copy ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }} ${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }} -v info
           
       - name: Update image latest tag
         run: |
-          ./regctl-linux-amd64 image copy ghcr.io/${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }} ${{ github.repository }}:latest -v info
-          ./regctl-linux-amd64 image copy ghcr.io/${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }} ghcr.io/${{ github.repository }}:latest -v info
+          ./regctl-linux-amd64 image copy ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }} ${{ github.repository }}:latest -v info
+          ./regctl-linux-amd64 image copy ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }} ghcr.io/${{ github.repository }}:latest -v info

@@ -6,8 +6,6 @@ No Operator, No CRD, No need to blindly apply a `yml` to K8s cluster, only a sim
 
 This repo provides the following images, both are Multi-Arch(amd64/arm64 supported):
 
-- `knatnetwork/github-runner:focal-<tag>`
-- `ghcr.io/knatnetwork/github-runner:focal-<tag>`
 - `knatnetwork/github-runner:jammy-<tag>`
 - `ghcr.io/knatnetwork/github-runner:jammy-<tag>`
 - `knatnetwork/github-runner:noble-<tag>`
@@ -18,7 +16,6 @@ This repo provides the following images, both are Multi-Arch(amd64/arm64 support
 
 ## Specs
 
-- `github-runner:focal-<tag>` images are based on Ubuntu 20.04
 - `github-runner:jammy-<tag>` images are based on Ubuntu 22.04
 - `github-runner:noble-<tag>` images are based on Ubuntu 24.04
 - `github-runner:latest` images are latest image of `github-runner:noble-<tag>`

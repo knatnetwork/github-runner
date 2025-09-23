@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 as env
+FROM ubuntu:22.04 as env
 
 ARG GITHUB_RUNNER_VERSION=2.286.1
 ARG DEBIAN_FRONTEND=noninteractive
@@ -10,7 +10,7 @@ RUN wget https://github.com/actions/runner/releases/download/v${GITHUB_RUNNER_VE
     && sed -i '3,9d' ./config.sh \
     && sed -i '3,8d' ./run.sh
 
-FROM ubuntu:20.04 as runner
+FROM ubuntu:22.04 as runner
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV KMS_SERVER_ADDR ""

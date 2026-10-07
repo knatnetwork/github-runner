@@ -1,108 +1,242 @@
 name: Build Runner Image
 
-on: 
+on:
+  schedule:
+    # GitHub cannot subscribe to actions/runner releases. Poll the latest stable release instead.
+    - cron: '17 */6 * * *'
   workflow_dispatch:
     inputs:
       github-runner-version:
-        description: 'Version on github runner(in https://github.com/actions/runner), e.g: 2.328.0'
+        description: 'Runner version without the leading v, for example 2.338.0. Scheduled runs ignore this and publish the latest actions/runner release when an image is missing.'
         required: true
-        default: '2.328.0'
+        default: '2.338.0'
+
+concurrency:
+  group: build-runner-image
+  cancel-in-progress: false
+
+env:
+  CODE_NAMES: jammy noble resolute
 
 jobs:
+  resolve-version:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      should_build: ${{ steps.version.outputs.should_build }}
+    steps:
+      - name: Resolve runner version
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.github-runner-version }}
+        run: |
+          set -euo pipefail
+
+          validate() {
+            if [[ ! "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Invalid runner version: $1" >&2
+              exit 1
+            fi
+          }
+
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            version="${INPUT_VERSION#v}"
+            validate "${version}"
+            echo "version=${version}" >> "${GITHUB_OUTPUT}"
+            echo "should_build=true" >> "${GITHUB_OUTPUT}"
+            echo "Manual build for ${version}"
+            exit 0
+          fi
+
+          repo="$(printf '%s' "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+          registry_token="$(curl -fsSL -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" \
+            "https://ghcr.io/token?service=ghcr.io&scope=repository:${repo}:pull" \
+            | jq -r '.token')"
+          if [ -z "${registry_token}" ] || [ "${registry_token}" = "null" ]; then
+            echo "Failed to get a GHCR pull token" >&2
+            exit 1
+          fi
+
+          manifest_exists() {
+            local tag="$1"
+            local http_code
+            http_code="$(curl -sS -o /dev/null -w "%{http_code}" \
+              -H "Authorization: Bearer ${registry_token}" \
+              -H "Accept: application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json" \
+              "https://ghcr.io/v2/${repo}/manifests/${tag}")" || {
+              echo "Failed to query GHCR manifest ${tag}" >&2
+              exit 1
+            }
+            case "${http_code}" in
+              200) return 0 ;;
+              404) return 1 ;;
+              *)
+                echo "Unexpected HTTP ${http_code} while checking ${tag}" >&2
+                exit 1
+                ;;
+            esac
+          }
+
+          release_json="$(gh api repos/actions/runner/releases/latest)"
+          version="$(jq -r '.tag_name' <<< "${release_json}")"
+          version="${version#v}"
+          validate "${version}"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+
+          asset_missing=0
+          for arch in x64 arm64; do
+            asset="actions-runner-linux-${arch}-${version}.tar.gz"
+            count="$(jq --arg name "${asset}" '[.assets[] | select(.name == $name)] | length' <<< "${release_json}")"
+            if [ "${count}" -eq 0 ]; then
+              echo "Release asset is not listed yet: ${asset}"
+              asset_missing=1
+            fi
+          done
+          if [ "${asset_missing}" -eq 1 ]; then
+            echo "should_build=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          missing=0
+          read -r -a code_names <<< "${CODE_NAMES}"
+          for code_name in "${code_names[@]}"; do
+            if manifest_exists "${code_name}-${version}"; then
+              echo "Already published: ${code_name}-${version}"
+            else
+              echo "Missing image: ${code_name}-${version}"
+              missing=1
+            fi
+          done
+
+          if [ "${missing}" -eq 1 ]; then
+            echo "should_build=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "should_build=false" >> "${GITHUB_OUTPUT}"
+          fi
+
   build-images:
-    runs-on: ubuntu-latest
+    needs: resolve-version
+    if: needs.resolve-version.outputs.should_build == 'true'
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: true
       matrix:
-        platform: [amd64, arm64]
-        code_name: [jammy, noble]
+        include:
+          - code_name: jammy
+            ubuntu_version: "22.04"
+            platform: amd64
+          - code_name: jammy
+            ubuntu_version: "22.04"
+            platform: arm64
+          - code_name: noble
+            ubuntu_version: "24.04"
+            platform: amd64
+          - code_name: noble
+            ubuntu_version: "24.04"
+            platform: arm64
+          - code_name: resolute
+            ubuntu_version: "26.04"
+            platform: amd64
+          - code_name: resolute
+            ubuntu_version: "26.04"
+            platform: arm64
 
     steps:
-      - uses: actions/checkout@v4
-      
+      - uses: actions/checkout@v5
+
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: knatnetwork
           password: ${{ secrets.GITHUB_TOKEN }}
-    
+
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: knatnetwork
           password: ${{ secrets.DOCKERHUB_PASSWD }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ matrix.platform }}-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-${{ matrix.code_name }}-${{ matrix.platform }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-${{ matrix.platform }}
+            ${{ runner.os }}-buildx-${{ matrix.code_name }}-${{ matrix.platform }}
 
-      - name: Build and push ${{ github.event.inputs.github-runner-version }} ${{ matrix.platform }} Version
-        uses: docker/build-push-action@v5
+      - name: Build and push ${{ needs.resolve-version.outputs.version }} ${{ matrix.code_name }} ${{ matrix.platform }}
+        uses: docker/build-push-action@v7
         with:
-          context: ./${{ matrix.code_name }}-${{ matrix.platform }}/
-          file: ./${{ matrix.code_name }}-${{ matrix.platform }}/Dockerfile
+          context: .
+          file: ./Dockerfile
           platforms: linux/${{ matrix.platform }}
           push: true
           provenance: false
           sbom: false
-          build-args: GITHUB_RUNNER_VERSION=${{ github.event.inputs.github-runner-version }}
+          build-args: |
+            GITHUB_RUNNER_VERSION=${{ needs.resolve-version.outputs.version }}
+            UBUNTU_VERSION=${{ matrix.ubuntu_version }}
           tags: |
-            ghcr.io/${{ github.repository }}:${{ matrix.code_name }}-${{ github.event.inputs.github-runner-version }}-${{ matrix.platform }}
-
+            ghcr.io/${{ github.repository }}:${{ matrix.code_name }}-${{ needs.resolve-version.outputs.version }}-${{ matrix.platform }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-          
+
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-  
-  combine-two-images:
-    runs-on: ubuntu-latest
+  combine-images:
+    runs-on: ubuntu-24.04
     needs:
+      - resolve-version
       - build-images
     steps:
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: knatnetwork
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: knatnetwork
           password: ${{ secrets.DOCKERHUB_PASSWD }}
 
       - name: Get regctl
         run: |
-          wget -q https://github.com/regclient/regclient/releases/download/v0.5.1/regctl-linux-amd64
+          curl -fsSL -o regctl-linux-amd64 https://github.com/regclient/regclient/releases/download/v0.11.6/regctl-linux-amd64
           chmod +x regctl-linux-amd64
 
-      - name: Combine two images on GHCR and sync to DockerHub
+      - name: Combine images on GHCR and sync to DockerHub
+        env:
+          VERSION: ${{ needs.resolve-version.outputs.version }}
         run: |
-          docker manifest create ghcr.io/${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }} --amend ghcr.io/${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }}-amd64 --amend ghcr.io/${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }}-arm64
-          docker manifest push ghcr.io/${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }}
-          docker manifest create ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }} --amend ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }}-amd64 --amend ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }}-arm64
-          docker manifest push ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }}
+          set -euo pipefail
+          repo="$(printf '%s' "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+          read -r -a code_names <<< "${CODE_NAMES}"
 
-          ./regctl-linux-amd64 image copy ghcr.io/${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }} ${{ github.repository }}:jammy-${{ github.event.inputs.github-runner-version }} -v info
-          ./regctl-linux-amd64 image copy ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }} ${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }} -v info
-          
+          for code_name in "${code_names[@]}"; do
+            docker manifest create "ghcr.io/${repo}:${code_name}-${VERSION}" \
+              --amend "ghcr.io/${repo}:${code_name}-${VERSION}-amd64" \
+              --amend "ghcr.io/${repo}:${code_name}-${VERSION}-arm64"
+            docker manifest push "ghcr.io/${repo}:${code_name}-${VERSION}"
+            ./regctl-linux-amd64 image copy "ghcr.io/${repo}:${code_name}-${VERSION}" "${repo}:${code_name}-${VERSION}" -v info
+          done
+
       - name: Update image latest tag
+        env:
+          VERSION: ${{ needs.resolve-version.outputs.version }}
         run: |
-          ./regctl-linux-amd64 image copy ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }} ${{ github.repository }}:latest -v info
-          ./regctl-linux-amd64 image copy ghcr.io/${{ github.repository }}:noble-${{ github.event.inputs.github-runner-version }} ghcr.io/${{ github.repository }}:latest -v info
+          repo="$(printf '%s' "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')"
+          ./regctl-linux-amd64 image copy "ghcr.io/${repo}:noble-${VERSION}" "${repo}:latest" -v info
+          ./regctl-linux-amd64 image copy "ghcr.io/${repo}:noble-${VERSION}" "ghcr.io/${repo}:latest" -v info

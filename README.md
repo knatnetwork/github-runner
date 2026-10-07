@@ -4,21 +4,23 @@ No Operator, No CRD, No need to blindly apply a `yml` to K8s cluster, only a sim
 
 ## Images
 
-This repo provides the following images, both are Multi-Arch(amd64/arm64 supported):
+This repo provides the following images. Each tag is multi-arch (amd64 and arm64):
 
 - `knatnetwork/github-runner:jammy-<tag>`
 - `ghcr.io/knatnetwork/github-runner:jammy-<tag>`
 - `knatnetwork/github-runner:noble-<tag>`
 - `ghcr.io/knatnetwork/github-runner:noble-<tag>`
+- `knatnetwork/github-runner:resolute-<tag>`
+- `ghcr.io/knatnetwork/github-runner:resolute-<tag>`
 
-
-`<tag>` is related to the https://github.com/actions/runner/tags, for example, you may expect a image called `knatnetwork/github-runner:jammy-2.322.0` when `v2.322.0` is released.
+`<tag>` follows https://github.com/actions/runner/tags. Runner `v2.338.0` is published as `knatnetwork/github-runner:noble-2.338.0`.
 
 ## Specs
 
-- `github-runner:jammy-<tag>` images are based on Ubuntu 22.04
+- `github-runner:jammy-<tag>` images are based on Ubuntu 22.04. This line is deprecated: GitHub retires the `ubuntu-22.04` hosted image on 17 April 2027, and Ubuntu 22.04 standard support ends in May 2027. New deployments should use `noble` or `resolute`.
 - `github-runner:noble-<tag>` images are based on Ubuntu 24.04
-- `github-runner:latest` images are latest image of `github-runner:noble-<tag>`
+- `github-runner:resolute-<tag>` images are based on Ubuntu 26.04
+- `github-runner:latest` tracks `github-runner:noble-<tag>`
 
 ## Usage
 
@@ -33,8 +35,6 @@ This is a quick start example for people to register a runner on single machine 
 First you need to create a `docker-compose.yml` file and write the following content.
 
 ```yml
-version: '3'
-
 services:
   runner:
     image: knatnetwork/github-runner:latest

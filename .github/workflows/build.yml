@@ -29,6 +29,7 @@ jobs:
         id: version
         env:
           INPUT_VERSION: ${{ inputs.github-runner-version }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 

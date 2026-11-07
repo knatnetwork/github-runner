@@ -118,29 +118,38 @@ jobs:
   build-images:
     needs: resolve-version
     if: needs.resolve-version.outputs.should_build == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: true
       matrix:
         include:
+          # arm64 is built on a native runner. qemu-aarch64 segfaults in
+          # Ubuntu's libc-bin ldconfig postinst (exit 139) and pinning binfmt
+          # does not make that reliable.
           - code_name: jammy
             ubuntu_version: "22.04"
             platform: amd64
+            runner: ubuntu-24.04
           - code_name: jammy
             ubuntu_version: "22.04"
             platform: arm64
+            runner: ubuntu-24.04-arm
           - code_name: noble
             ubuntu_version: "24.04"
             platform: amd64
+            runner: ubuntu-24.04
           - code_name: noble
             ubuntu_version: "24.04"
             platform: arm64
+            runner: ubuntu-24.04-arm
           - code_name: resolute
             ubuntu_version: "26.04"
             platform: amd64
+            runner: ubuntu-24.04
           - code_name: resolute
             ubuntu_version: "26.04"
             platform: arm64
+            runner: ubuntu-24.04-arm
 
     steps:
       - uses: actions/checkout@v5
@@ -157,9 +166,6 @@ jobs:
         with:
           username: knatnetwork
           password: ${{ secrets.DOCKERHUB_PASSWD }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4

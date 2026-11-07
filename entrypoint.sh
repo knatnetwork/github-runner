@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-if [ -n "${ADDITIONAL_PACKAGES}" ]; then
+if [ -n "${ADDITIONAL_PACKAGES:-}" ]; then
     TO_BE_INSTALLED=$(echo "${ADDITIONAL_PACKAGES}" | tr "," " ")
     echo "Installing additional packages: ${TO_BE_INSTALLED}"
     # Package names come from the operator-supplied list and must be split on whitespace.
@@ -9,11 +9,11 @@ if [ -n "${ADDITIONAL_PACKAGES}" ]; then
     sudo apt-get update && sudo apt-get install -y ${TO_BE_INSTALLED} && sudo apt-get clean
 fi
 
-if [ -z "${RUNNER_NAME}" ]; then
+if [ -z "${RUNNER_NAME:-}" ]; then
     RUNNER_NAME=$(hostname)
 fi
 
-if [ -z "${RUNNER_WORKDIR}" ]; then
+if [ -z "${RUNNER_WORKDIR:-}" ]; then
     RUNNER_WORKDIR="_work"
 fi
 

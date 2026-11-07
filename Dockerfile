@@ -26,6 +26,7 @@ FROM ubuntu:${UBUNTU_VERSION} AS runner
 ARG DEBIAN_FRONTEND=noninteractive
 ENV KMS_SERVER_ADDR="" \
     RUNNER_REGISTER_TO="" \
+    RUNNER_NAME="" \
     RUNNER_WORKDIR="_work" \
     RUNNER_LABELS="" \
     ADDITIONAL_PACKAGES="" \

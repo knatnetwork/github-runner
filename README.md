@@ -1,5 +1,7 @@
 # Simple Self-Hosted GitHub Actions Runner
 
+[![awesome-runners](https://img.shields.io/badge/listed%20on-awesome--runners-blue.svg)](https://github.com/jonico/awesome-runners)
+
 No Operator, No CRD, No need to blindly apply a `yml` to K8s cluster, only a simple self-hosted GitHub Actions Runner that just works!
 
 ## Images
